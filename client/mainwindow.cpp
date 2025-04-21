@@ -1,28 +1,35 @@
-#include <QTcpSocket>
 #include "mainwindow.h"
+#include "network.h"
+#include "pagemain.h"
+#include "pagetesttakermain.h"
+#include "pagetestcreatorend.h"
+#include "pagetestcreatormain.h"
 
-MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
+MainWindow::MainWindow(QWidget *parent) : QMainWindow{parent} {
     this->resize(800, 600);
     this->setWindowTitle("UserTestingSystem");
-    QTcpSocket* socket = new QTcpSocket();
+    network = new Network();
+    network->Connect();
 
-    socket->connectToHost("127.0.0.1", 1234);
+    stackedWidget = new QStackedWidget(this);
 
-    if (!socket->waitForConnected(3000)) {
-        qDebug() << "Не удалось подключиться к серверу!";
-        return;
-    }
+    PageMain* pageMain = new PageMain(this);
+    PageTestTakerMain* pageTestTakerMain = new PageTestTakerMain(this);
+    PageTestCreatorMain* pageTestCreatorMain = new PageTestCreatorMain(this);
+    PageTestCreatorEnd* pageTestCreatorEnd = new PageTestCreatorEnd(this);
 
-    qDebug() << "Подключение установлено!";
+    stackedWidget->addWidget(pageMain);
+    stackedWidget->addWidget(pageTestTakerMain);
+    stackedWidget->addWidget(pageTestCreatorMain);
+    stackedWidget->addWidget(pageTestCreatorEnd);
 
-    QString message = "Привет, сервер!";
-    socket->write(message.toUtf8());
-
-    if (socket->waitForBytesWritten(3000)) {
-        qDebug() << "Сообщение отправлено серверу!";
-    }
+    this->setCentralWidget(stackedWidget);
 }
 
-MainWindow::~MainWindow() {
+void MainWindow::SetPage(int index) {
+    stackedWidget->setCurrentIndex(index);
+}
 
+QWidget* MainWindow::GetPage(int index) {
+    return stackedWidget->widget(index);
 }

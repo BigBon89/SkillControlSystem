@@ -2,15 +2,17 @@
 #define CORE_H
 
 #include <QObject>
-#include <QTcpServer>
+#include "network.h"
+#include "database.h"
 
 class Core : public QObject {
     Q_OBJECT
 public:
     Core(QObject* parent = nullptr);
-    void onNewConnection();
 private:
-    QTcpServer* server;
+    void HandleIncomingMessage(const QByteArray& data);
+    Network* network;
+    DataBase* db;
 };
 
 #endif // CORE_H

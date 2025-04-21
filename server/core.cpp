@@ -1,21 +1,19 @@
 #include <QTcpSocket>
 #include "core.h"
+#include "utils.h"
 
-Core::Core(QObject *parent) : QObject{parent}, server(new QTcpServer(this)) {
-    connect(server, &QTcpServer::newConnection, this, &Core::onNewConnection);
-    if (!server->listen(QHostAddress::Any, 1234)) {
-        qDebug() << "Не удалось запустить сервер!";
-    } else {
-        qDebug() << "Сервер запущен!";
-    }
+Core::Core(QObject* parent)
+    : QObject{parent},
+    network{new Network()},
+    db{new DataBase()} {
+    connect(network, &Network::MessageReceived, this, &Core::HandleIncomingMessage);
 }
 
-void Core::onNewConnection() {
-    QTcpSocket* clientSocket = server->nextPendingConnection();
-    connect(clientSocket, &QTcpSocket::readyRead, this, [clientSocket]() {
-        QByteArray data = clientSocket->readAll();
-        qDebug() << "Получено сообщение: " << data;
-        clientSocket->write("Сообщение получено!");
-        clientSocket->disconnectFromHost();
-    });
+void Core::HandleIncomingMessage(const QByteArray& data) {
+    qDebug() << "Core получил сообщение: " << data;
+
+    auto parsed = ParseTestData(QString::fromUtf8(data));
+    QString name = parsed.first;
+    QString json = parsed.second;
+    db->InsertTest(name, json);
 }
