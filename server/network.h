@@ -9,11 +9,12 @@ class Network : public QObject {
     Q_OBJECT
 public:
     Network(QObject* parent = nullptr);
+    void Send(QTcpSocket* clientSocket, const QString& message);
 private slots:
     void OnNewConnection();
     void Read(QTcpSocket* clientSocket);
 signals:
-    void MessageReceived(const QByteArray& data);
+    void MessageReceived(QTcpSocket* clientSocket, const QByteArray& data);
 private:
     QTcpServer* server;
 };

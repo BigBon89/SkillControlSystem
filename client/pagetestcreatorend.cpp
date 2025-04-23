@@ -47,7 +47,8 @@ PageTestCreatorEnd::PageTestCreatorEnd(MainWindow* parent) : QWidget{parent} {
             file.close();
             qDebug() << ("Тест сохранен");
         }
+        QString result;
         QString toServerMessage = lineEdit->text() + "|" + doc.toJson();
-        parent->network->Send(toServerMessage);
+        parent->GetNetwork()->Send("sendtest", toServerMessage, result);
     });
 }

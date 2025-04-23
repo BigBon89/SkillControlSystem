@@ -11,6 +11,8 @@ PageMain::PageMain(MainWindow* parent) : QWidget(parent) {
 
     connect(button1, &QPushButton::clicked, this, [parent]() {
         parent->SetPage(1);
+        QString result;
+        parent->GetNetwork()->Send("gettests", "", result);
     });
 
     connect(button2, &QPushButton::clicked, this, [parent]() {

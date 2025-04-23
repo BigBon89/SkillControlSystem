@@ -10,7 +10,8 @@ class Core : public QObject {
 public:
     Core(QObject* parent = nullptr);
 private:
-    void HandleIncomingMessage(const QByteArray& data);
+    void HandleIncomingMessage(QTcpSocket* clientSocket, const QByteArray& data);
+    void HandleCommands(QTcpSocket* clientSocket, const QString& command, const QString& data);
     Network* network;
     DataBase* db;
 };

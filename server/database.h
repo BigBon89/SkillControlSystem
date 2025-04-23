@@ -10,9 +10,11 @@ class DataBase : public QObject {
 public:
     DataBase(QObject* parent = nullptr);
     bool InsertTest(const QString& name, const QString& test);
+    bool GetTests(QStringList& testNames);
+    bool GetTest(const QString& name, QString& test);
 private:
-    QSqlDatabase db;
     bool CreateTestsTable();
+    QSqlDatabase db;
 };
 
 #endif // DATABASE_H

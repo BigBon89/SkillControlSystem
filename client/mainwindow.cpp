@@ -33,3 +33,7 @@ void MainWindow::SetPage(int index) {
 QWidget* MainWindow::GetPage(int index) {
     return stackedWidget->widget(index);
 }
+
+Network* MainWindow::GetNetwork() {
+    return this->network;
+}

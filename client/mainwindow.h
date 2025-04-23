@@ -11,8 +11,9 @@ public:
     MainWindow(QWidget *parent = nullptr);
     void SetPage(int index);
     QWidget* GetPage(int index);
-    Network* network;
+    Network* GetNetwork();
 private:
+    Network* network;
     QStackedWidget* stackedWidget;
 };
 #endif // MAINWINDOW_H

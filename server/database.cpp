@@ -29,6 +29,11 @@ bool DataBase::CreateTestsTable() {
         )
     )";
 
+    if (!query.exec(createTable)) {
+        //qDebug() << "Create tests table error: " << query.lastError().text();
+        //return false;
+    }
+
     return true;
 }
 
@@ -49,4 +54,42 @@ bool DataBase::InsertTest(const QString& name, const QString& test) {
 
     qDebug() << "Test inserted successfully";
     return true;
+}
+
+bool DataBase::GetTests(QStringList& testNames) {
+    QSqlQuery query(db);
+    if (!query.exec("SELECT name FROM tests")) {
+        qDebug() << "Failed to get test names:" << query.lastError().text();
+        return false;
+    }
+
+    while (query.next()) {
+        testNames << query.value(0).toString();
+    }
+
+    qDebug() << "Test names got successfully";
+    return true;
+}
+
+bool DataBase::GetTest(const QString& name, QString& test) {
+    QSqlQuery query(db);
+    query.prepare(R"(
+        SELECT test FROM tests WHERE name = :name
+    )");
+
+    query.bindValue(":name", name);
+
+    if (!query.exec()) {
+        qDebug() << "Failed to get test: " << query.lastError().text();
+        return false;
+    }
+
+    if (query.next()) {
+        test = query.value(0).toString();
+        qDebug() << "Test got successfully";
+        return true;
+    } else {
+        qDebug() << "No test found with name: " << name;
+        return false;
+    }
 }

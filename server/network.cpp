@@ -22,7 +22,9 @@ void Network::Read(QTcpSocket* clientSocket) {
     QByteArray data = clientSocket->readAll();
     qDebug() << "Получено сообщение: " << data;
 
-    emit MessageReceived(data);
+    emit MessageReceived(clientSocket, data);
+}
 
-    clientSocket->write("Сообщение получено!");
+void Network::Send(QTcpSocket* clientSocket, const QString& message) {
+    clientSocket->write(message.toUtf8());
 }

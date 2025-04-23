@@ -1,3 +1,5 @@
+#include <QJsonDocument>
+#include <QJsonObject>
 #include "network.h"
 
 Network::Network(QObject *parent) : QObject{parent} {
@@ -15,11 +17,25 @@ bool Network::Connect(QString ip, int port) {
     return true;
 }
 
-bool Network::Send(QString message) {
-    socket->write(message.toUtf8());
+bool Network::Send(QString command, QString message, QString& result) {
+    QJsonObject json;
+    json["command"] = command;
+    json["message"] = message;
+
+    QJsonDocument doc(json);
+    QByteArray data = doc.toJson(QJsonDocument::Compact);
+
+    socket->write(data);
 
     if (socket->waitForBytesWritten(3000)) {
         qDebug() << "Сообщение отправлено серверу!";
     }
+
+    if (socket->waitForReadyRead(3000)) {
+        QByteArray data = socket->readAll();
+        result = QString::fromUtf8(data);
+        qDebug() << result << '\n';
+    }
+
     return true;
 }
