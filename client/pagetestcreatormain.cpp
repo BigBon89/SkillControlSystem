@@ -21,12 +21,12 @@ PageTestCreatorMain::PageTestCreatorMain(MainWindow* parent) : QWidget{parent} {
     });
 
     connect(buttonNext, &QPushButton::clicked, this, [this, parent]() {
-        auto questionsInputAnswer = GetQuestions();
-        if (questionsInputAnswer.empty()) {
+        auto questions = GetQuestions();
+        if (questions.empty()) {
             return;
         }
 
-        for (const auto& input : questionsInputAnswer) {
+        for (const auto& input : questions) {
             auto [lineEditQuestion, lineEditAnswer, spinBoxPoints] = input;
 
             if (lineEditQuestion->text().isEmpty() || lineEditAnswer->text().isEmpty() || spinBoxPoints->value() == 0) {
@@ -45,7 +45,7 @@ QList<std::tuple<QLineEdit*, QLineEdit*, QSpinBox*>> PageTestCreatorMain::GetQue
 }
 
 void PageTestCreatorMain::AddQuestion() {
-    QHBoxLayout* questionLayout = new QHBoxLayout();
+    QHBoxLayout* questionLayout2 = new QHBoxLayout();
 
     QLabel* questionLabel = new QLabel("Вопрос:", this);
     QLineEdit* questionEdit = new QLineEdit(this);
@@ -56,8 +56,8 @@ void PageTestCreatorMain::AddQuestion() {
     pointsSpinBox->setMinimum(1);
 
     QPushButton* deleteButton = new QPushButton("Удалить вопрос", this);
-    connect(deleteButton, &QPushButton::clicked, this, [this, questionLayout, questionLabel, questionEdit, answerLabel, answerEdit, pointsLabel, pointsSpinBox, deleteButton]() {
-        questionsLayout->removeItem(questionLayout);
+    connect(deleteButton, &QPushButton::clicked, this, [this, questionLayout2, questionLabel, questionEdit, answerLabel, answerEdit, pointsLabel, pointsSpinBox, deleteButton]() {
+        questionsLayout->removeItem(questionLayout2);
 
         auto it = std::find_if(questions.begin(), questions.end(), [questionEdit, answerEdit, pointsSpinBox](const std::tuple<QLineEdit*, QLineEdit*, QSpinBox*>& item) {
             return std::get<0>(item) == questionEdit && std::get<1>(item) == answerEdit && std::get<2>(item) == pointsSpinBox;
@@ -73,18 +73,18 @@ void PageTestCreatorMain::AddQuestion() {
         delete pointsLabel;
         delete pointsSpinBox;
         delete deleteButton;
-        delete questionLayout;
+        delete questionLayout2;
     });
 
-    questionLayout->addWidget(questionLabel);
-    questionLayout->addWidget(questionEdit);
-    questionLayout->addWidget(answerLabel);
-    questionLayout->addWidget(answerEdit);
-    questionLayout->addWidget(pointsLabel);
-    questionLayout->addWidget(pointsSpinBox);
-    questionLayout->addWidget(deleteButton);
+    questionLayout2->addWidget(questionLabel);
+    questionLayout2->addWidget(questionEdit);
+    questionLayout2->addWidget(answerLabel);
+    questionLayout2->addWidget(answerEdit);
+    questionLayout2->addWidget(pointsLabel);
+    questionLayout2->addWidget(pointsSpinBox);
+    questionLayout2->addWidget(deleteButton);
 
-    questionsLayout->addLayout(questionLayout);
+    questionsLayout->addLayout(questionLayout2);
 
     questions.append({questionEdit, answerEdit, pointsSpinBox});
 }

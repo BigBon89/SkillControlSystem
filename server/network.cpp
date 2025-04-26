@@ -27,4 +27,5 @@ void Network::Read(QTcpSocket* clientSocket) {
 
 void Network::Send(QTcpSocket* clientSocket, const QString& message) {
     clientSocket->write(message.toUtf8());
+    qDebug() << "Message sended: " << message;
 }

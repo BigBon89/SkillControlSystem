@@ -12,7 +12,8 @@
 PageTestCreatorEnd::PageTestCreatorEnd(MainWindow* parent) : QWidget{parent} {
     QVBoxLayout* layout = new QVBoxLayout(this);
     QPushButton* buttonBack = new QPushButton("Назад", this);
-    QLineEdit* lineEdit = new QLineEdit("Имя теста", this);
+    QLineEdit* lineEdit = new QLineEdit(this);
+    lineEdit->setPlaceholderText("Имя теста");
     QPushButton* buttonSave = new QPushButton("Сохранить тест", this);
     layout->addWidget(buttonBack);
     layout->addWidget(lineEdit);
@@ -23,9 +24,8 @@ PageTestCreatorEnd::PageTestCreatorEnd(MainWindow* parent) : QWidget{parent} {
     });
 
     connect(buttonSave, &QPushButton::clicked, this, [parent, lineEdit]() {
-        PageTestCreatorMain* pageTestCreatorMain = (PageTestCreatorMain*)parent->GetPage(2);
+        PageTestCreatorMain* pageTestCreatorMain = (PageTestCreatorMain*)parent->GetPage((int)Pages::PageTestCreatorMain);
         auto questions = pageTestCreatorMain->GetQuestions();
-
         QJsonArray questionsArray;
 
         for (const auto& question : questions) {
