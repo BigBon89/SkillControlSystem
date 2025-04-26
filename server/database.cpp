@@ -1,5 +1,8 @@
 #include <QSqlQuery>
 #include <QSqlError>
+#include <QJsonParseError>
+#include <QJsonObject>
+#include <QJsonArray>
 #include "database.h"
 
 DataBase::DataBase(QObject* parent)
@@ -48,11 +51,11 @@ bool DataBase::InsertTest(const QString& name, const QString& test) {
     query.bindValue(":test", test);
 
     if (!query.exec()) {
-        qDebug() << "Failed to insert test:" << query.lastError().text();
+        //qDebug() << "Failed to insert test:" << query.lastError().text();
         return false;
     }
 
-    qDebug() << "Test inserted successfully";
+    //qDebug() << "Test inserted successfully";
     return true;
 }
 
@@ -67,7 +70,7 @@ bool DataBase::GetTests(QStringList& testNames) {
         testNames << query.value(0).toString();
     }
 
-    qDebug() << "Test names got successfully";
+    //qDebug() << "Test names got successfully";
     return true;
 }
 
@@ -86,10 +89,43 @@ bool DataBase::GetTest(const QString& name, QString& test) {
 
     if (query.next()) {
         test = query.value(0).toString();
-        qDebug() << "Test got successfully";
+        //qDebug() << "Test got successfully";
         return true;
     } else {
-        qDebug() << "No test found with name: " << name;
+        //qDebug() << "No test found with name: " << name;
         return false;
     }
+}
+
+bool DataBase::GetTestForClient(const QString& name, QString& test) {
+    QString testRaw;
+    if (!GetTest(name, testRaw)) {
+        return false;
+    }
+
+    QJsonParseError parseError;
+    QJsonDocument doc = QJsonDocument::fromJson(testRaw.toUtf8(), &parseError);
+
+    if (parseError.error != QJsonParseError::NoError || !doc.isObject()) {
+        qDebug() << "JSON parse error:" << parseError.errorString();
+        return false;
+    }
+
+    QJsonObject obj = doc.object();
+
+    if (obj.contains("questions") && obj["questions"].isArray()) {
+        QJsonArray questions = obj["questions"].toArray();
+        for (int i = 0; i < questions.size(); i++) {
+            if (questions[i].isObject()) {
+                QJsonObject questionObj = questions[i].toObject();
+                questionObj.remove("answer");
+                questionObj.remove("points");
+                questions[i] = questionObj;
+            }
+        }
+        obj["questions"] = questions;
+    }
+
+    test = QJsonDocument(obj).toJson(QJsonDocument::Compact);
+    return true;
 }

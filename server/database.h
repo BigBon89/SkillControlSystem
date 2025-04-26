@@ -12,6 +12,7 @@ public:
     bool InsertTest(const QString& name, const QString& test);
     bool GetTests(QStringList& testNames);
     bool GetTest(const QString& name, QString& test);
+    bool GetTestForClient(const QString& name, QString& test);
 private:
     bool CreateTestsTable();
     QSqlDatabase db;

@@ -11,15 +11,20 @@ SOURCES += \
     pagemain.cpp \
     pagetestcreatorend.cpp \
     pagetestcreatormain.cpp \
-    pagetesttakermain.cpp
+    pagetesttakerend.cpp \
+    pagetesttakermain.cpp \
+    pagetesttakerstart.cpp
 
 HEADERS += \
+    enumpages.h \
     mainwindow.h \
     network.h \
     pagemain.h \
     pagetestcreatorend.h \
     pagetestcreatormain.h \
-    pagetesttakermain.h
+    pagetesttakerend.h \
+    pagetesttakermain.h \
+    pagetesttakerstart.h
 
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin

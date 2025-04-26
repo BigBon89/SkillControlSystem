@@ -1,14 +1,15 @@
 #include <QPushButton>
 #include <QLabel>
 #include "pagetestcreatormain.h"
+#include "enumpages.h"
 
 PageTestCreatorMain::PageTestCreatorMain(MainWindow* parent) : QWidget{parent} {
     QVBoxLayout* layout = new QVBoxLayout(this);
     QPushButton* buttonBack = new QPushButton("Назад", this);
-    QPushButton* buttonAddQuestionInputAnswer = new QPushButton("Добавить вопрос (Вписать ответ)", this);
+    QPushButton* buttonAddQuestion = new QPushButton("Добавить вопрос (Вписать ответ)", this);
     QPushButton* buttonNext = new QPushButton("Далее", this);
     layout->addWidget(buttonBack);
-    layout->addWidget(buttonAddQuestionInputAnswer);
+    layout->addWidget(buttonAddQuestion);
 
     questionsLayout = new QVBoxLayout();
     layout->addLayout(questionsLayout);
@@ -16,11 +17,11 @@ PageTestCreatorMain::PageTestCreatorMain(MainWindow* parent) : QWidget{parent} {
     layout->addWidget(buttonNext);
 
     connect(buttonBack, &QPushButton::clicked, this, [parent]() {
-        parent->SetPage(0);
+        parent->SetPage((int)Pages::PageMain);
     });
 
     connect(buttonNext, &QPushButton::clicked, this, [this, parent]() {
-        auto questionsInputAnswer = GetQuestionsInputAnswer();
+        auto questionsInputAnswer = GetQuestions();
         if (questionsInputAnswer.empty()) {
             return;
         }
@@ -33,17 +34,17 @@ PageTestCreatorMain::PageTestCreatorMain(MainWindow* parent) : QWidget{parent} {
             }
         }
 
-        parent->SetPage(3);
+        parent->SetPage((int)Pages::PageTestCreatorEnd);
     });
 
-    connect(buttonAddQuestionInputAnswer, &QPushButton::clicked, this, &PageTestCreatorMain::AddQuestionInputAnswer);
+    connect(buttonAddQuestion, &QPushButton::clicked, this, &PageTestCreatorMain::AddQuestion);
 }
 
-QList<std::tuple<QLineEdit*, QLineEdit*, QSpinBox*>> PageTestCreatorMain::GetQuestionsInputAnswer() {
-    return questionsInputAnswer;
+QList<std::tuple<QLineEdit*, QLineEdit*, QSpinBox*>> PageTestCreatorMain::GetQuestions() {
+    return questions;
 }
 
-void PageTestCreatorMain::AddQuestionInputAnswer() {
+void PageTestCreatorMain::AddQuestion() {
     QHBoxLayout* questionLayout = new QHBoxLayout();
 
     QLabel* questionLabel = new QLabel("Вопрос:", this);
@@ -58,11 +59,11 @@ void PageTestCreatorMain::AddQuestionInputAnswer() {
     connect(deleteButton, &QPushButton::clicked, this, [this, questionLayout, questionLabel, questionEdit, answerLabel, answerEdit, pointsLabel, pointsSpinBox, deleteButton]() {
         questionsLayout->removeItem(questionLayout);
 
-        auto it = std::find_if(questionsInputAnswer.begin(), questionsInputAnswer.end(), [questionEdit, answerEdit, pointsSpinBox](const std::tuple<QLineEdit*, QLineEdit*, QSpinBox*>& item) {
+        auto it = std::find_if(questions.begin(), questions.end(), [questionEdit, answerEdit, pointsSpinBox](const std::tuple<QLineEdit*, QLineEdit*, QSpinBox*>& item) {
             return std::get<0>(item) == questionEdit && std::get<1>(item) == answerEdit && std::get<2>(item) == pointsSpinBox;
         });
-        if (it != questionsInputAnswer.end()) {
-            questionsInputAnswer.erase(it);
+        if (it != questions.end()) {
+            questions.erase(it);
         }
 
         delete questionLabel;
@@ -85,5 +86,5 @@ void PageTestCreatorMain::AddQuestionInputAnswer() {
 
     questionsLayout->addLayout(questionLayout);
 
-    questionsInputAnswer.append({questionEdit, answerEdit, pointsSpinBox});
+    questions.append({questionEdit, answerEdit, pointsSpinBox});
 }

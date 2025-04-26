@@ -5,9 +5,9 @@ Network::Network(QObject* parent)
     server{new QTcpServer(this)} {
     connect(server, &QTcpServer::newConnection, this, &Network::OnNewConnection);
     if (!server->listen(QHostAddress::Any, 1234)) {
-        qDebug() << "Не удалось запустить сервер!";
+        qDebug() << "Server start error";
     } else {
-        qDebug() << "Сервер запущен!";
+        qDebug() << "Server started";
     }
 }
 
@@ -20,7 +20,7 @@ void Network::OnNewConnection() {
 
 void Network::Read(QTcpSocket* clientSocket) {
     QByteArray data = clientSocket->readAll();
-    qDebug() << "Получено сообщение: " << data;
+    qDebug() << "Message got: " << data;
 
     emit MessageReceived(clientSocket, data);
 }

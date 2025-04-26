@@ -39,7 +39,7 @@ void Core::HandleCommands(QTcpSocket* clientSocket, const QString& command, cons
         network->Send(clientSocket, list.join('\n'));
     } else if (command == "gettest") {
         QString test;
-        db->GetTest(data, test);
+        db->GetTestForClient(data, test);
         network->Send(clientSocket, test);
     }
 }

@@ -28,13 +28,12 @@ bool Network::Send(QString command, QString message, QString& result) {
     socket->write(data);
 
     if (socket->waitForBytesWritten(3000)) {
-        qDebug() << "Сообщение отправлено серверу!";
+
     }
 
     if (socket->waitForReadyRead(3000)) {
         QByteArray data = socket->readAll();
         result = QString::fromUtf8(data);
-        qDebug() << result << '\n';
     }
 
     return true;

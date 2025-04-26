@@ -11,12 +11,12 @@ class PageTestCreatorMain : public QWidget {
     Q_OBJECT
 public:
     PageTestCreatorMain(MainWindow* parent = nullptr);
-    QList<std::tuple<QLineEdit*, QLineEdit*, QSpinBox*>> GetQuestionsInputAnswer();
+    QList<std::tuple<QLineEdit*, QLineEdit*, QSpinBox*>> GetQuestions();
 private slots:
-    void AddQuestionInputAnswer();
+    void AddQuestion();
 private:
     QVBoxLayout* questionsLayout;
-    QList<std::tuple<QLineEdit*, QLineEdit*, QSpinBox*>> questionsInputAnswer;
+    QList<std::tuple<QLineEdit*, QLineEdit*, QSpinBox*>> questions;
 };
 
 #endif // PAGETESTCREATORMAIN_H
