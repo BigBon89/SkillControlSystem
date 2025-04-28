@@ -12,9 +12,11 @@ class PageTestTakerMain : public QWidget {
 public:
     PageTestTakerMain(MainWindow* parent = nullptr);
     void AddQuestionsFromJson(const QString& json);
+    void SetLabelTestName(const QString& newValue);
 private:
+    QLabel* labelTestName;
     QVBoxLayout* questionsLayout;
-    QList<std::tuple<QLabel*, QLineEdit*>> questions;
+    QList<QPair<QLabel*, QLineEdit*>> questions;
 };
 
 #endif // PAGETESTTAKERMAIN_H

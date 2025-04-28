@@ -25,8 +25,10 @@ PageTestTakerStart::PageTestTakerStart(MainWindow* parent) : QWidget{parent} {
     connect(buttonNext, &QPushButton::clicked, this, [this, parent]() {
         QString result;
         QListWidgetItem* item = this->listWidget->currentItem();
-        parent->GetNetwork()->Send("gettest", item->text(), result);
+        QString testName = item->text();
+        parent->GetNetwork()->Send("gettest", testName, result);
         PageTestTakerMain* page = (PageTestTakerMain*)parent->GetPage((int)Pages::PageTestTakerMain);
+        page->SetLabelTestName(testName);
         page->AddQuestionsFromJson(result);
         parent->SetPage((int)Pages::PageTestTakerMain);
     });

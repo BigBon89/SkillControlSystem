@@ -1,20 +1,22 @@
 #include <QVBoxLayout>
 #include <QPushButton>
+#include <QLabel>
 #include "pagetesttakerend.h"
 #include "enumpages.h"
 
 PageTestTakerEnd::PageTestTakerEnd(MainWindow* parent) : QWidget{parent} {
+    labelResult = new QLabel("0", this);
     QVBoxLayout* layout = new QVBoxLayout(this);
-    QPushButton* buttonBack = new QPushButton("Назад", this);
-    QPushButton* buttonNext = new QPushButton("Завершить тест", this);
+    QPushButton* buttonBack = new QPushButton("В главное меню", this);
+
     layout->addWidget(buttonBack);
-    layout->addWidget(buttonNext);
+    layout->addWidget(labelResult);
 
     connect(buttonBack, &QPushButton::clicked, this, [parent]() {
-        parent->SetPage((int)Pages::PageTestTakerMain);
+        parent->SetPage((int)Pages::PageMain);
     });
+}
 
-    connect(buttonNext, &QPushButton::clicked, this, []() {
-
-    });
+void PageTestTakerEnd::SetResult(const QString& newValue) {
+    labelResult->setText(newValue);
 }
