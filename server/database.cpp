@@ -3,22 +3,53 @@
 #include <QJsonParseError>
 #include <QJsonObject>
 #include <QJsonArray>
+#include <QFile>
 #include "database.h"
 
 DataBase::DataBase(QObject* parent)
     : QObject{parent},
     db{QSqlDatabase::addDatabase("QPSQL")} {
-    db.setHostName("localhost");
-    db.setPort(5432);
-    db.setDatabaseName("alexander");
-    db.setUserName("alexander");
-    db.setPassword("");
+    QFile file("../../../server/config.json");
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        qDebug() << "Failed to open config.json";
+        return;
+    }
+
+    QByteArray jsonData = file.readAll();
+    file.close();
+
+    QJsonParseError parseError;
+    QJsonDocument doc = QJsonDocument::fromJson(jsonData, &parseError);
+    if (parseError.error != QJsonParseError::NoError) {
+        qDebug() << "JSON parse error:" << parseError.errorString();
+        return;
+    }
+
+    if (!doc.isObject()) {
+        qDebug() << "Invalid JSON format: root is not an object";
+        return;
+    }
+
+    QJsonObject obj = doc.object();
+
+    QString hostname = obj.value("hostname").toString();
+    int port = obj.value("port").toString().toInt();
+    QString dbname = obj.value("dbname").toString();
+    QString username = obj.value("username").toString();
+    QString password = obj.value("password").toString();
+
+    db.setHostName(hostname);
+    db.setPort(port);
+    db.setDatabaseName(dbname);
+    db.setUserName(username);
+    db.setPassword(password);
 
     if (db.open()) {
         qDebug() << "Database connected";
     } else {
-        qDebug() << "Database connected failed: " << db.lastError().text();
+        qDebug() << "Database connection failed: " << db.lastError().text();
     }
+
     CreateTestsTable();
 }
 
