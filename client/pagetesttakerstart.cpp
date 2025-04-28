@@ -25,6 +25,9 @@ PageTestTakerStart::PageTestTakerStart(MainWindow* parent) : QWidget{parent} {
     connect(buttonNext, &QPushButton::clicked, this, [this, parent]() {
         QString result;
         QListWidgetItem* item = this->listWidget->currentItem();
+        if (item == nullptr) {
+            return;
+        }
         QString testName = item->text();
         parent->GetNetwork()->Send("gettest", testName, result);
         PageTestTakerMain* page = (PageTestTakerMain*)parent->GetPage((int)Pages::PageTestTakerMain);
