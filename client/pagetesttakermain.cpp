@@ -25,6 +25,12 @@ PageTestTakerMain::PageTestTakerMain(MainWindow* parent) : QWidget{parent} {
         QJsonArray questionsArray;
 
         for (const auto& question : questions) {
+            if (std::get<1>(question)->text() == "") {
+                return;
+            }
+        }
+
+        for (const auto& question : questions) {
             QJsonObject questionObject;
             questionObject["question"] = std::get<0>(question)->text();
             questionObject["answer"] = std::get<1>(question)->text();
