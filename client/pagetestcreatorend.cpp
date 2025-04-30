@@ -24,6 +24,9 @@ PageTestCreatorEnd::PageTestCreatorEnd(MainWindow* parent) : QWidget{parent} {
     });
 
     connect(buttonSave, &QPushButton::clicked, this, [parent, lineEdit]() {
+        if (lineEdit->text().isEmpty()) {
+            return;
+        }
         PageTestCreatorMain* pageTestCreatorMain = (PageTestCreatorMain*)parent->GetPage((int)Pages::PageTestCreatorMain);
         auto questions = pageTestCreatorMain->GetQuestions();
         QJsonArray questionsArray;
