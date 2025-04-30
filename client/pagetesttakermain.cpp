@@ -3,6 +3,7 @@
 #include <QJsonDocument>
 #include <QJsonArray>
 #include <QJsonObject>
+#include <QScrollArea>
 #include "pagetesttakermain.h"
 #include "pagetesttakerend.h"
 #include "enumpages.h"
@@ -11,11 +12,21 @@ PageTestTakerMain::PageTestTakerMain(MainWindow* parent) : QWidget{parent} {
     labelTestName = new QLabel("null", this);
     QVBoxLayout* layout = new QVBoxLayout(this);
     QPushButton* buttonNext = new QPushButton("Завершить тест", this);
-    QHBoxLayout* layoutTestName = new QHBoxLayout(this);
-    layout->addLayout(layoutTestName);
+    layout->addWidget(labelTestName);
 
-    questionsLayout = new QVBoxLayout();
-    layout->addLayout(questionsLayout);
+    QScrollArea* scrollArea = new QScrollArea(this);
+    scrollArea->setWidgetResizable(true);
+    scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+
+    QWidget* scrollWidget = new QWidget();
+    scrollWidget->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
+    scrollWidget->setMinimumWidth(scrollArea->viewport()->width());
+
+    questionsLayout = new QVBoxLayout(scrollWidget);
+    scrollWidget->setLayout(questionsLayout);
+
+    scrollArea->setWidget(scrollWidget);
+    layout->addWidget(scrollArea);
 
     layout->addWidget(buttonNext);
 

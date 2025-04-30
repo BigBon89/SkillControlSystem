@@ -1,5 +1,6 @@
 #include <QPushButton>
 #include <QLabel>
+#include <QScrollArea>
 #include "pagetestcreatormain.h"
 #include "enumpages.h"
 
@@ -11,8 +12,19 @@ PageTestCreatorMain::PageTestCreatorMain(MainWindow* parent) : QWidget{parent} {
     layout->addWidget(buttonBack);
     layout->addWidget(buttonAddQuestion);
 
-    questionsLayout = new QVBoxLayout();
-    layout->addLayout(questionsLayout);
+    QScrollArea* scrollArea = new QScrollArea(this);
+    scrollArea->setWidgetResizable(true);
+    scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+
+    QWidget* scrollWidget = new QWidget();
+    scrollWidget->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
+    scrollWidget->setMinimumWidth(scrollArea->viewport()->width());
+
+    questionsLayout = new QVBoxLayout(scrollWidget);
+    scrollWidget->setLayout(questionsLayout);
+
+    scrollArea->setWidget(scrollWidget);
+    layout->addWidget(scrollArea);
 
     layout->addWidget(buttonNext);
 
