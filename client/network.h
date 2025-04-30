@@ -12,6 +12,9 @@ public:
     bool Send(QString command, QString message, QString& result);
 private:
     QTcpSocket* socket;
+    void Dialog();
+private slots:
+    void onDisconnected();
 };
 
 #endif // NETWORK_H
