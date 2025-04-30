@@ -11,8 +11,7 @@ SOURCES += \
 HEADERS += \
     core.h \
     database.h \
-    network.h \
-    utils.h
+    network.h
 
 macx {
     INCLUDEPATH += /opt/homebrew/opt/libpq/include

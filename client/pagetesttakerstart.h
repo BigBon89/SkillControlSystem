@@ -8,8 +8,11 @@
 class PageTestTakerStart : public QWidget {
     Q_OBJECT
 public:
+    QString GetUsername();
     PageTestTakerStart(MainWindow* parent = nullptr);
     QListWidget* listWidget;
+private:
+    QLineEdit* lineEditUsername;
 };
 
 #endif // PAGETESTTAKERSTART_H

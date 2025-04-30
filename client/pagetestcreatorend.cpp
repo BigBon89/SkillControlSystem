@@ -24,6 +24,7 @@ PageTestCreatorEnd::PageTestCreatorEnd(MainWindow* parent) : QWidget{parent} {
     });
 
     connect(buttonSave, &QPushButton::clicked, this, [parent, lineEdit]() {
+        qint32 maxpoints = 0;
         if (lineEdit->text().isEmpty()) {
             return;
         }
@@ -35,17 +36,20 @@ PageTestCreatorEnd::PageTestCreatorEnd(MainWindow* parent) : QWidget{parent} {
             QJsonObject questionObject;
             questionObject["question"] = std::get<0>(question)->text();
             questionObject["answer"] = std::get<1>(question)->text();
-            questionObject["points"] = std::get<2>(question)->value();
+            qint32 points = std::get<2>(question)->value();
+            maxpoints += points;
+            questionObject["points"] = points;
             questionsArray.append(questionObject);
         }
 
         QJsonObject rootObject;
-        rootObject["questions"] = questionsArray;
+        rootObject["testname"] = lineEdit->text();
+        rootObject["testdata"] = questionsArray;
+        rootObject["maxpoints"] = maxpoints;
 
         QJsonDocument doc(rootObject);
-
+        qWarning() << doc.toJson();
         QString result;
-        QString toServerMessage = lineEdit->text() + "|" + doc.toJson();
-        parent->GetNetwork()->Send("sendtest", toServerMessage, result);
+        parent->GetNetwork()->Send("sendtest", doc.toJson(), result);
     });
 }

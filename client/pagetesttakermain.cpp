@@ -4,6 +4,7 @@
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QScrollArea>
+#include "pagetesttakerstart.h"
 #include "pagetesttakermain.h"
 #include "pagetesttakerend.h"
 #include "enumpages.h"
@@ -46,15 +47,18 @@ PageTestTakerMain::PageTestTakerMain(MainWindow* parent) : QWidget{parent} {
             questionsArray.append(questionObject);
         }
 
+        PageTestTakerStart* pageTestTakerStart = (PageTestTakerStart*)parent->GetPage((int)Pages::PageTestTakerStart);
+
         QJsonObject rootObject;
+        rootObject["username"] = pageTestTakerStart->GetUsername();
         rootObject["testname"] = labelTestName->text();
         rootObject["answers"] = questionsArray;
 
         QJsonDocument doc(rootObject);
         QString result;
         parent->GetNetwork()->Send("checktest", doc.toJson(), result);
-        PageTestTakerEnd* page = (PageTestTakerEnd*)parent->GetPage((int)Pages::PageTestTakerEnd);
-        page->SetResult(result);
+        PageTestTakerEnd* pageTestTakerEnd = (PageTestTakerEnd*)parent->GetPage((int)Pages::PageTestTakerEnd);
+        pageTestTakerEnd->SetResult(result);
 
         QLayoutItem* item;
         while ((item = questionsLayout->takeAt(0)) != nullptr) {
@@ -77,12 +81,11 @@ void PageTestTakerMain::AddQuestionsFromJson(const QString& json) {
         return;
     }
 
-    if (!doc.isObject()) {
+    if (!doc.isArray()) {
         return;
     }
 
-    QJsonObject rootObj = doc.object();
-    QJsonArray questionsArray = rootObj["questions"].toArray();
+    QJsonArray questionsArray = doc.array();
 
     for (const QJsonValue& val : questionsArray) {
         if (!val.isObject()) {

@@ -18,7 +18,7 @@ bool Network::Connect(QString ip, int port) {
             Dialog();
             continue;
         }
-        qDebug() << "Подключение установлено!";
+
         return true;
     }
 }

@@ -51,6 +51,7 @@ DataBase::DataBase(QObject* parent)
     }
 
     CreateTestsTable();
+    CreateResultsTable();
 }
 
 bool DataBase::CreateTestsTable() {
@@ -58,42 +59,81 @@ bool DataBase::CreateTestsTable() {
     QString createTable = R"(
         CREATE TABLE IF NOT EXISTS tests (
             id SERIAL PRIMARY KEY,
-            name TEXT NOT NULL,
-            test TEXT NOT NULL
+            testname TEXT NOT NULL,
+            testdata TEXT NOT NULL,
+            maxpoints integer NOT NULL
         )
     )";
 
     if (!query.exec(createTable)) {
-        //qDebug() << "Create tests table error: " << query.lastError().text();
-        //return false;
+
     }
 
     return true;
 }
 
-bool DataBase::InsertTest(const QString& name, const QString& test) {
+bool DataBase::CreateResultsTable() {
+    QSqlQuery query(db);
+    QString createTable = R"(
+        CREATE TABLE IF NOT EXISTS results (
+            id SERIAL PRIMARY KEY,
+            username TEXT NOT NULL,
+            testname TEXT NOT NULL,
+            points integer NOT NULL
+        )
+    )";
+
+    if (!query.exec(createTable)) {
+
+    }
+
+    return true;
+}
+
+bool DataBase::InsertTest(const QString& testname, const QString& testdata, const qint32& maxpoints) {
     QSqlQuery query(db);
     query.prepare(R"(
-        INSERT INTO tests (name, test)
-        VALUES (:name, :test)
+        INSERT INTO tests (testname, testdata, maxpoints)
+        VALUES (:testname, :testdata, :maxpoints)
     )");
 
-    query.bindValue(":name", name);
-    query.bindValue(":test", test);
+    query.bindValue(":testname", testname);
+    query.bindValue(":testdata", testdata);
+    query.bindValue(":maxpoints", maxpoints);
 
     if (!query.exec()) {
-        //qDebug() << "Failed to insert test:" << query.lastError().text();
+        qDebug() << "DataBase::InsertTest failed: " << query.lastError().text();
         return false;
     }
 
-    //qDebug() << "Test inserted successfully";
+    return true;
+}
+
+bool DataBase::InsertResult(const QString& username,
+                            const QString& testname,
+                            const qint32& points
+) {
+    QSqlQuery query(db);
+    query.prepare(R"(
+        INSERT INTO results (username, testname, points)
+        VALUES (:username, :testname, :points)
+    )");
+
+    query.bindValue(":username", username);
+    query.bindValue(":testname", testname);
+    query.bindValue(":points", points);
+
+    if (!query.exec()) {
+        qDebug() << "DataBase::InsertResult failed: " << query.lastError().text();
+        return false;
+    }
     return true;
 }
 
 bool DataBase::GetTests(QStringList& testNames) {
     QSqlQuery query(db);
-    if (!query.exec("SELECT name FROM tests")) {
-        qDebug() << "Failed to get test names:" << query.lastError().text();
+    if (!query.exec("SELECT testname FROM tests")) {
+        qDebug() << "DataBase::GetTests failed: " << query.lastError().text();
         return false;
     }
 
@@ -101,62 +141,59 @@ bool DataBase::GetTests(QStringList& testNames) {
         testNames << query.value(0).toString();
     }
 
-    //qDebug() << "Test names got successfully";
     return true;
 }
 
-bool DataBase::GetTest(const QString& name, QString& test) {
+bool DataBase::GetTestdata(const QString& testname, QString& testdata) {
     QSqlQuery query(db);
     query.prepare(R"(
-        SELECT test FROM tests WHERE name = :name
+        SELECT testdata FROM tests WHERE testname = :testname
     )");
 
-    query.bindValue(":name", name);
+    query.bindValue(":testname", testname);
 
     if (!query.exec()) {
-        qDebug() << "Failed to get test: " << query.lastError().text();
+        qDebug() << "[DB] GetTest failed: " << query.lastError().text();
         return false;
     }
 
     if (query.next()) {
-        test = query.value(0).toString();
-        //qDebug() << "Test got successfully";
+        testdata = query.value(0).toString();
         return true;
     } else {
-        //qDebug() << "No test found with name: " << name;
         return false;
     }
 }
 
-bool DataBase::GetTestForClient(const QString& name, QString& test) {
+bool DataBase::GetTestForClient(const QString& testname, QString& testdata) {
     QString testRaw;
-    if (!GetTest(name, testRaw)) {
+    if (!GetTestdata(testname, testRaw)) {
         return false;
     }
 
     QJsonParseError parseError;
     QJsonDocument doc = QJsonDocument::fromJson(testRaw.toUtf8(), &parseError);
 
-    if (parseError.error != QJsonParseError::NoError || !doc.isObject()) {
-        qDebug() << "JSON parse error:" << parseError.errorString();
+    if (parseError.error != QJsonParseError::NoError) {
+        qDebug() << "DataBase::GetTestForClient JSON parse error:" << parseError.errorString();
         return false;
     }
 
-    QJsonObject obj = doc.object();
-
-    if (obj.contains("questions") && obj["questions"].isArray()) {
-        QJsonArray questions = obj["questions"].toArray();
-        for (int i = 0; i < questions.size(); i++) {
-            if (questions[i].isObject()) {
-                QJsonObject questionObj = questions[i].toObject();
-                questionObj.remove("answer");
-                questionObj.remove("points");
-                questions[i] = questionObj;
-            }
-        }
-        obj["questions"] = questions;
+    if (!doc.isArray()) {
+        qDebug() << "Error: DataBase::GetTestForClient doc is not array";
+        return false;
     }
 
-    test = QJsonDocument(obj).toJson(QJsonDocument::Compact);
+    QJsonArray questions = doc.array();
+    QJsonArray cleanedQuestions;
+
+    for (const QJsonValue& val : questions) {
+        QJsonObject questionObj = val.toObject();
+        questionObj.remove("answer");
+        questionObj.remove("points");
+        cleanedQuestions.append(questionObj);
+    }
+
+    testdata = QJsonDocument(cleanedQuestions).toJson();
     return true;
 }

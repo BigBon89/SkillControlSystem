@@ -3,7 +3,6 @@
 #include <QJsonObject>
 #include <QtCore/qjsonarray.h>
 #include "core.h"
-#include "utils.h"
 
 Core::Core(QObject* parent)
     : QObject{parent},
@@ -30,18 +29,28 @@ void Core::HandleIncomingMessage(QTcpSocket* clientSocket, const QByteArray& dat
 
 void Core::HandleCommands(QTcpSocket* clientSocket, const QString& command, const QString& data) {
     if (command == "sendtest") {
-        auto parsed = ParseTestData(data);
-        QString name = parsed.first;
-        QString json = parsed.second;
-        db->InsertTest(name, json);
+        QJsonParseError parseError;
+        QJsonDocument doc = QJsonDocument::fromJson(data.toUtf8(), &parseError);
+
+        if (parseError.error != QJsonParseError::NoError) {
+            qDebug() << "JSON parse error:" << parseError.errorString();
+            return;
+        }
+
+        if (!doc.isObject()) {
+            return;
+        }
+
+        QJsonObject obj = doc.object();
+        db->InsertTest(obj["testname"].toString(), QString(QJsonDocument(obj["testdata"].toArray()).toJson()), obj["maxpoints"].toInt());
     } else if (command == "gettests") {
         QStringList list;
         db->GetTests(list);
         network->Send(clientSocket, list.join('\n'));
     } else if (command == "gettest") {
-        QString test;
-        db->GetTestForClient(data, test);
-        network->Send(clientSocket, test);
+        QString testdata;
+        db->GetTestForClient(data, testdata);
+        network->Send(clientSocket, testdata);
     } else if (command == "checktest") {
         QString result;
         CheckTest(data, result);
@@ -53,22 +62,35 @@ void Core::CheckTest(const QString& test, QString& result) {
     QJsonParseError parseError;
 
     QJsonDocument docClient = QJsonDocument::fromJson(test.toUtf8(), &parseError);
-    if (parseError.error != QJsonParseError::NoError || !docClient.isObject()) {
-        qDebug() << "Ошибка парсинга JSON: " << parseError.errorString();
+    if (parseError.error != QJsonParseError::NoError) {
+        qDebug() << "Parsing error JSON: " << parseError.errorString();
         return;
     }
+
+    if (!docClient.isObject()) {
+        qDebug() << "Error: Core::CheckTest docClient is not object";
+        return;
+    }
+
     QJsonObject objClient = docClient.object();
     QJsonArray arrayClient = objClient["answers"].toArray();
 
     QString testFromDB;
-    db->GetTest(objClient["testname"].toString(), testFromDB);
+    QString username = objClient["username"].toString();
+    QString testname = objClient["testname"].toString();
+    db->GetTestdata(testname, testFromDB);
     QJsonDocument docDB = QJsonDocument::fromJson(testFromDB.toUtf8(), &parseError);
-    if (parseError.error != QJsonParseError::NoError || !docDB.isObject()) {
-        qDebug() << "Ошибка парсинга JSON: " << parseError.errorString();
+    if (parseError.error != QJsonParseError::NoError) {
+        qDebug() << "Parsing error JSON: " << parseError.errorString();
         return;
     }
-    QJsonObject objDB = docDB.object();
-    QJsonArray arrayDB = objDB["questions"].toArray();
+
+    if (!docDB.isArray()) {
+        qDebug() << "Error: Core::CheckTest docDB is not object";
+        return;
+    }
+
+    QJsonArray arrayDB = docDB.array();
 
     qint32 points = 0;
 
@@ -86,4 +108,6 @@ void Core::CheckTest(const QString& test, QString& result) {
     }
 
     result = QString::number(points);
+
+    db->InsertResult(username, testname, points);
 }
