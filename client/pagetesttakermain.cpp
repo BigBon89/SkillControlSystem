@@ -10,11 +10,9 @@
 PageTestTakerMain::PageTestTakerMain(MainWindow* parent) : QWidget{parent} {
     labelTestName = new QLabel("null", this);
     QVBoxLayout* layout = new QVBoxLayout(this);
-    QPushButton* buttonBack = new QPushButton("Назад", this);
     QPushButton* buttonNext = new QPushButton("Завершить тест", this);
     QHBoxLayout* layoutTestName = new QHBoxLayout(this);
     layout->addLayout(layoutTestName);
-    layout->addWidget(buttonBack);
 
     questionsLayout = new QVBoxLayout();
     layout->addLayout(questionsLayout);
@@ -46,11 +44,17 @@ PageTestTakerMain::PageTestTakerMain(MainWindow* parent) : QWidget{parent} {
         parent->GetNetwork()->Send("checktest", doc.toJson(), result);
         PageTestTakerEnd* page = (PageTestTakerEnd*)parent->GetPage((int)Pages::PageTestTakerEnd);
         page->SetResult(result);
-        parent->SetPage((int)Pages::PageTestTakerEnd);
-    });
 
-    connect(buttonBack, &QPushButton::clicked, this, [parent]() {
-        parent->SetPage((int)Pages::PageTestTakerStart);
+        QLayoutItem* item;
+        while ((item = questionsLayout->takeAt(0)) != nullptr) {
+            if (item->widget()) {
+                delete item->widget();
+            }
+            delete item;
+        }
+        questions.clear();
+
+        parent->SetPage((int)Pages::PageTestTakerEnd);
     });
 }
 
