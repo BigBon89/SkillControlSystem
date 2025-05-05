@@ -12,6 +12,7 @@ PageTestTakerStart::PageTestTakerStart(MainWindow* parent) : QWidget{parent} {
     QPushButton* buttonBack = new QPushButton("Назад", this);
     QLabel* label = new QLabel("Выберите тест", this);
     lineEditUsername = new QLineEdit(this);
+    lineEditUsername->setPlaceholderText("Имя тестируемого");
     listWidget = new QListWidget(this);
     listWidget->setSelectionMode(QAbstractItemView::SingleSelection);
     QPushButton* buttonNext = new QPushButton("Далее", this);
