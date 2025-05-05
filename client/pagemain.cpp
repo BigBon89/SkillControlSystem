@@ -16,8 +16,11 @@ PageMain::PageMain(MainWindow* parent) : QWidget(parent) {
         QString result;
         parent->GetNetwork()->Send("gettests", "", result);
         PageTestTakerStart* page = (PageTestTakerStart*)parent->GetPage(1);
-        QStringList list = result.split("\n");
         page->listWidget->clear();
+        if (result.isEmpty()) {
+            return;
+        }
+        QStringList list = result.split("\n");
         page->listWidget->addItems(list);
     });
 
