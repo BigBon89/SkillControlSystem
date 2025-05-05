@@ -79,7 +79,8 @@ bool DataBase::CreateResultsTable() {
             id SERIAL PRIMARY KEY,
             username TEXT NOT NULL,
             testname TEXT NOT NULL,
-            points integer NOT NULL
+            points integer NOT NULL,
+            end_date TIMESTAMP NOT NULL DEFAULT date_trunc('second', now())
         )
     )";
 
