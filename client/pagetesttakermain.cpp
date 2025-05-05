@@ -12,8 +12,14 @@
 PageTestTakerMain::PageTestTakerMain(MainWindow* parent) : QWidget{parent} {
     labelTestName = new QLabel("null", this);
     QVBoxLayout* layout = new QVBoxLayout(this);
+    QHBoxLayout* layout2 = new QHBoxLayout(this);
+    layout2->setAlignment(Qt::AlignLeft);
     QPushButton* buttonNext = new QPushButton("Завершить тест", this);
-    layout->addWidget(labelTestName);
+
+    QLabel* labelTextTestName = new QLabel("Имя теста:", this);
+    layout2->addWidget(labelTextTestName);
+    layout2->addWidget(labelTestName);
+    layout->addLayout(layout2);
 
     QScrollArea* scrollArea = new QScrollArea(this);
     scrollArea->setWidgetResizable(true);
