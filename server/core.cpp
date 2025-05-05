@@ -16,7 +16,7 @@ void Core::HandleIncomingMessage(QTcpSocket* clientSocket, const QByteArray& dat
     QJsonDocument doc = QJsonDocument::fromJson(data, &parseError);
 
     if (parseError.error != QJsonParseError::NoError || !doc.isObject()) {
-        qDebug() << "Ошибка парсинга JSON: " << parseError.errorString();
+        qDebug() << "JSON parse error:" << parseError.errorString();
         return;
     }
 

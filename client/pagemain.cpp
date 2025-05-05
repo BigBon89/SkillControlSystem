@@ -6,12 +6,12 @@
 
 PageMain::PageMain(MainWindow* parent) : QWidget(parent) {
     QVBoxLayout* layout = new QVBoxLayout(this);
-    QPushButton* button1 = new QPushButton("Прохождение теста", this);
-    QPushButton* button2 = new QPushButton("Создание теста", this);
-    layout->addWidget(button1);
-    layout->addWidget(button2);
+    QPushButton* buttonTaker = new QPushButton("Прохождение теста", this);
+    QPushButton* buttonCreate = new QPushButton("Создание теста", this);
+    layout->addWidget(buttonTaker);
+    layout->addWidget(buttonCreate);
 
-    connect(button1, &QPushButton::clicked, this, [parent]() {
+    connect(buttonTaker, &QPushButton::clicked, this, [parent]() {
         parent->SetPage((int)Pages::PageTestTakerStart);
         QString result;
         parent->GetNetwork()->Send("gettests", "", result);
@@ -24,7 +24,7 @@ PageMain::PageMain(MainWindow* parent) : QWidget(parent) {
         page->listWidget->addItems(list);
     });
 
-    connect(button2, &QPushButton::clicked, this, [parent]() {
+    connect(buttonCreate, &QPushButton::clicked, this, [parent]() {
         parent->SetPage((int)Pages::PageTestCreatorMain);
     });
 }
