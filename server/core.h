@@ -13,6 +13,7 @@ private:
     void HandleIncomingMessage(QTcpSocket* clientSocket, const QByteArray& data);
     void HandleCommands(QTcpSocket* clientSocket, const QString& command, const QString& data);
     void CheckTest(const QString& test, QString& result);
+    void ReadConfig();
     Network* network;
     DataBase* db;
 };

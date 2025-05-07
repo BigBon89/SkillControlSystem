@@ -2,12 +2,54 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QtCore/qjsonarray.h>
+#include <QFile>
 #include "core.h"
 
 Core::Core(QObject* parent)
-    : QObject{parent},
-    network{new Network()},
-    db{new DataBase()} {
+    : QObject{parent} {
+
+#ifdef QT_DEBUG
+    QFile file("../../../server/config.json");
+#else
+    QFile file("config.json");
+#endif
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        qDebug() << "Failed to open" << file.fileName();
+        return;
+    }
+
+    QByteArray jsonData = file.readAll();
+    file.close();
+
+    QJsonParseError parseError;
+    QJsonDocument doc = QJsonDocument::fromJson(jsonData, &parseError);
+    if (parseError.error != QJsonParseError::NoError) {
+        qDebug() << "JSON parse error:" << parseError.errorString();
+        return;
+    }
+
+    if (!doc.isObject()) {
+        qDebug() << "Invalid JSON format: root is not an object";
+        return;
+    }
+
+    QJsonObject root = doc.object();
+    QJsonObject networkObj = root["network"].toObject();
+    QJsonObject databaseObj = root["database"].toObject();
+
+    QString ip = networkObj["ip"].toString();
+    qint32 port = networkObj["port"].toInt();
+
+    network = new Network(ip, port);
+
+    QString hostname = databaseObj.value("hostname").toString();
+    qint32 databasePort = databaseObj.value("port").toString().toInt();
+    QString databaseName = databaseObj.value("dbname").toString();
+    QString username = databaseObj.value("username").toString();
+    QString password = databaseObj.value("password").toString();
+
+    db = new DataBase(hostname, databasePort, databaseName, username, password);
+
     connect(network, &Network::MessageReceived, this, &Core::HandleIncomingMessage);
 }
 
@@ -110,4 +152,8 @@ void Core::CheckTest(const QString& test, QString& result) {
     result = QString::number(points);
 
     db->InsertResult(username, testname, points);
+}
+
+void Core::ReadConfig() {
+
 }

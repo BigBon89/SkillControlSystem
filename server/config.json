@@ -1,7 +1,13 @@
 {
-    "hostname": "localhost",
-    "port": "5432",
-    "dbname": "alexander",
-    "username": "alexander",
-    "password": ""
+    "network": {
+        "ip": "127.0.0.1",
+        "port": 1234
+    },
+    "database": {
+        "hostname": "localhost",
+        "port": "5432",
+        "dbname": "alexander",
+        "username": "alexander",
+        "password": ""
+    }
 }

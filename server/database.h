@@ -8,7 +8,13 @@
 class DataBase : public QObject {
     Q_OBJECT
 public:
-    DataBase(QObject* parent = nullptr);
+    DataBase(const QString& hostname,
+             const qint32& port,
+             const QString& databaseName,
+             const QString& username,
+             const QString& password,
+             QObject* parent = nullptr
+    );
     bool GetTests(QStringList& testNames);
     bool InsertTest(const QString& testname, const QString& testdata, const qint32& maxpoints);
     bool GetTestdata(const QString& testname, QString& testdata);

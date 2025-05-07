@@ -8,7 +8,7 @@
 class Network : public QObject {
     Q_OBJECT
 public:
-    Network(QObject* parent = nullptr);
+    Network(QString ip, qint32 port, QObject* parent = nullptr);
     void Send(QTcpSocket* clientSocket, const QString& message);
 private slots:
     void OnNewConnection();

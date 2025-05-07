@@ -1,17 +1,23 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QMessageBox>
+#include <QFile>
 #include "network.h"
 
-Network::Network(QObject *parent) : QObject{parent} {
+Network::Network(QObject* parent) : QObject{parent} {
     socket = new QTcpSocket();
-
+    ReadConfig();
     connect(socket, &QTcpSocket::disconnected, this, &Network::onDisconnected);
 }
 
-bool Network::Connect(QString ip, int port) {
+bool Network::Connect() {
     while(true) {
         socket->abort();
+        socket->deleteLater();
+
+        socket = new QTcpSocket(this);
+        connect(socket, &QTcpSocket::disconnected, this, &Network::onDisconnected);
+
         socket->connectToHost(ip, port);
 
         if (!socket->waitForConnected(3000)) {
@@ -64,4 +70,35 @@ void Network::Dialog() {
     if (ret == QMessageBox::Cancel) {
         exit(0);
     }
+}
+
+void Network::ReadConfig() {
+#ifdef QT_DEBUG
+    QFile file("../../../../../../client/config.json");
+#else
+    QFile file("config.json");
+#endif
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        qDebug() << "Failed to open" << file.fileName();
+        return;
+    }
+
+    QByteArray jsonData = file.readAll();
+    file.close();
+
+    QJsonParseError parseError;
+    QJsonDocument doc = QJsonDocument::fromJson(jsonData, &parseError);
+    if (parseError.error != QJsonParseError::NoError) {
+        qDebug() << "JSON parse error:" << parseError.errorString();
+        return;
+    }
+
+    if (!doc.isObject()) {
+        qDebug() << "Invalid JSON format: root is not an object";
+        return;
+    }
+
+    QJsonObject obj = doc.object();
+    ip = obj["ip"].toString();
+    port = obj["port"].toInt();
 }

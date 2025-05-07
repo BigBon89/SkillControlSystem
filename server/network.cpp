@@ -1,10 +1,10 @@
 #include "network.h"
 
-Network::Network(QObject* parent)
+Network::Network(QString ip, qint32 port, QObject* parent)
     : QObject{parent},
     server{new QTcpServer(this)} {
     connect(server, &QTcpServer::newConnection, this, &Network::OnNewConnection);
-    if (!server->listen(QHostAddress::Any, 1234)) {
+    if (!server->listen(QHostAddress(ip), port)) {
         qDebug() << "Server start error";
     } else {
         qDebug() << "Server started";

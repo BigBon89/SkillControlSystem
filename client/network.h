@@ -8,11 +8,14 @@ class Network : public QObject {
     Q_OBJECT
 public:
     Network(QObject* parent = nullptr);
-    bool Connect(QString ip = "127.0.0.1", int port = 1234);
+    bool Connect();
     bool Send(QString command, QString message, QString& result);
 private:
     QTcpSocket* socket;
     void Dialog();
+    void ReadConfig();
+    QString ip;
+    qint32 port;
 private slots:
     void onDisconnected();
 };
